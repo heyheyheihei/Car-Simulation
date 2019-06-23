@@ -4,8 +4,7 @@ using UnityEngine;
 using System.IO;
 
 /*
- * 
- * 
+ * csvファイルからスタート地点を読み込み，インスタンスに保存＆ゴール地点を読み込み，リストに保存するクラス
  */ 
 public class StartPointMaster : MonoBehaviour {
 
@@ -35,7 +34,10 @@ public class StartPointMaster : MonoBehaviour {
         //1行目はインデックス
         S_reader.ReadLine();
 
-        while(S_reader.Peek() > -1)
+        /*
+        *StartPoint一覧が保存されているファイルを読み込み，インスタンスに保存する処理 
+        */
+        while (S_reader.Peek() > -1)
         {
             S_rows = S_reader.ReadLine().Split(',');
 

@@ -4,7 +4,9 @@ using UnityEngine;
 using System;
 using System.Drawing;
 
-/// <summary>ブランチクラス</summary>
+/*
+ * ダイクストラ法に利用するためのリンク情報を持ったクラス
+ */
 public class DijkstraLink
 {
     public DijkstraNode Node1; 
@@ -24,10 +26,11 @@ public class DijkstraLink
 
 }
 
-/// <summary>ノードクラス</summary>
-public class DijkstraNode
+/*
+ * ダイクストラ法に利用するためのノード情報を持ったクラス
+ */
+ public class DijkstraNode
 {
-    /// <summary>最短経路確定状態の列挙体</summary>
     public enum NodeStatus
     {
         NotYet,     // 未確定状態
@@ -53,24 +56,26 @@ public class DijkstraNode
     }
 }
 
-/// <summary>ダイクストラ法アルゴリズム実装</summary>
+/*
+ * ダイクストラ法によりスタート地点からゴール地点までの最短経路探索を行うクラス
+ */
 public class Dijkstra
 {
     LinkList ListMaster;
     public DijkstraNode StartNode;
     public DijkstraNode EndNode;
     public List<DijkstraNode> nodeCompList = new List<DijkstraNode>();
-    /// <summary>コンストラクタ</summary>
-    /// <param name="nNodeCount">全ノード数</param>
+
+
     public Dijkstra()
     {
         ListMaster = GameObject.Find("LinkList").GetComponent<LinkList>();
     }
 
-
-    /// <summary>最短経路計算実行</summary>
-    /// <param name="nStart">スタートノードのインデックス</param>
-    /// <returns>検索回数</returns>
+    /*
+    * 最短経路探索を実行するメソッド
+    * return 探索回数
+    */
     public int Execute(DijkstraNode startNode, DijkstraNode endNode)
     {
         StartNode = startNode;
@@ -84,6 +89,8 @@ public class Dijkstra
             node.Status = DijkstraNode.NodeStatus.NotYet;
             node.SourceNode = null;
             node.linkList = ListMaster.dijkstraLinkList;
+
+            //To Do   startNodeとEndNodeがListMasterとは別物になってしまっているため、ListMaster内に組み込む
             if (startNode.x == node.x && startNode.y == node.y)
             {
                 startNode = node;
@@ -100,7 +107,8 @@ public class Dijkstra
         nodeCompList.Add(startNode);
         startNode.SourceNode = null;
 
-        foreach(DijkstraNode node in ListMaster.dijkstraNodeList)
+        //To Do 先ほどのToDo同様、startNodeとEndNodeをListMaster内に組み込む
+        foreach (DijkstraNode node in ListMaster.dijkstraNodeList)
         {
             if (startNode.x == node.x && startNode.y == node.y)
             {
@@ -123,8 +131,10 @@ public class Dijkstra
         return nCount;
     }
 
-    /// <summary>指定ノードに隣接するノードの最短距離を計算する。</summary>
-    /// <param name="sourceNode">指定ノード</param>
+    /*
+    *指定ノードに隣接するノードの最短距離を計算するメソッド 
+    * 引数　指定ノード
+    */
     public void UpdateNodeProp(DijkstraNode sourceNode)
     {
         if (sourceNode == null) return;
@@ -132,10 +142,11 @@ public class Dijkstra
         DijkstraNode destinationNode;
         float dTotalDistance;
 
-        // ブランチリストの中から指定ノードに関連しているものを検索
+        //リンクリストの中から指定ノードに関連しているものを検索
         foreach (DijkstraLink link in ListMaster.dijkstraLinkList)
         {
             destinationNode = null;
+            //link内にsourceNodeがあるか判別する処理
             if (link.Node1.x == sourceNode.x && link.Node1.y == sourceNode.y)
             {
                 link.flag = 1;
@@ -165,8 +176,10 @@ public class Dijkstra
         }       //foreach終わり
     }
 
-    /// <summary>未確定ノードの中で最短経路をもつノードを検索</summary>
-    /// <returns>最短経路をもつノード</returns>
+    /*
+    * 未確定ノードの中から最短経路を持つノードを検索するメソッド
+    * return 最短経路を持つノード
+    */
     public DijkstraNode FindMinNode()
     {
         double dMinDistance = int.MaxValue; // 最小値を最初無限大とする
@@ -174,7 +187,8 @@ public class Dijkstra
 
         DijkstraNode Finder = null;
         DijkstraNode DestinationNode;
-        // 全てのノードをチェック
+
+        // 確定しているノードをチェック
         foreach (DijkstraNode node in nodeCompList)
         {
             int i = 0;
@@ -193,7 +207,7 @@ public class Dijkstra
                     continue;
                 }
 
-                // 確定したノードは無視
+                // 検索先が確定したノードの場合は無視
                 if (DestinationNode.Status == DijkstraNode.NodeStatus.Completed)
                 {
                     i++;
@@ -213,10 +227,11 @@ public class Dijkstra
         }
         if (Finder == null) return null;
 
-        // 最短距離を見つけた。このノードは確定
+        // 最短距離を見つけた,したがってこのノードを確定とする
         Finder.Status = DijkstraNode.NodeStatus.Completed;
         nodeCompList.Add(Finder);
-        //Finderの座標がEndNoteと同じだったとしてもFinder側はそれがわからないのでEndNoteの処理をしてあげる必要がある
+
+        //FinderがEndNodeであった場合の処理
         if(Finder.x == EndNode.x && Finder.y == EndNode.y)
         {
             EndNode = Finder;
@@ -225,8 +240,10 @@ public class Dijkstra
         return Finder;
     }
 
-
-    //リンクを取得するメソッド
+    /*
+    * 探索したノードを基に最短経路(リンクの連なり)を持ったリストを作成するメソッド
+    * return  最短経路を持ったリスト
+    */
     public List<DijkstraLink> FindRoute()
     {
         List<DijkstraNode> doneNodeList = new List<DijkstraNode>();
@@ -250,6 +267,7 @@ public class Dijkstra
             node2 = doneNodeList[i + 1];
             foreach (DijkstraLink link in ListMaster.dijkstraLinkList)
             {
+                //To Do このif文の書き方をスマートにする（可読性を上げる）
                 if (node1.x == link.Node1.x && node1.y == link.Node1.y &&
                     node2.x == link.Node2.x && node2.y == link.Node2.y ||
                     node2.x == link.Node1.x && node2.y == link.Node1.y &&
@@ -269,6 +287,5 @@ public class Dijkstra
         }
         return routeList;
     }
-
 }
 

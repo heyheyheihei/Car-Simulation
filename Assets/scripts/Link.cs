@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * ノード情報を持ったクラス
+ */ 
 public class Node
 {
     public float x, y;
@@ -14,7 +17,9 @@ public class Node
     }
 }
 
-
+/*
+ * リンク情報を持ったクラス
+ */ 
 public class Link {
 
     public Node node1, node2;
@@ -40,7 +45,11 @@ public class Link {
         length = Mathf.Sqrt(Mathf.Pow(x1 - x2, 2f) + Mathf.Pow(y1 - y2, 2f));
     }
 
-    //carで進行方向を変更する際に必要なメソッド
+    /*
+     * リンク更新時(次のリンクに進んだとき)に進行方向の角度を取得するメソッド
+     * 引数　現在のリンクの始点、終点
+     * return 角度
+     */ 
     public float getRect(Node startNode, Node endNode)
     {
         float rect = 0;
@@ -71,7 +80,11 @@ public class Link {
         return rect;
     }
 
-    
+    /*
+     * リンク内の2点のノードのうち，どちらが始点か終点か判断するメソッド
+     * 引数　始点のx,y座標，id
+     * return ノードの情報
+     */ 
     public Node[] getStartNodes(float startX, float startY, string id)
     {
         Node[] nodes = new Node[2];
@@ -94,9 +107,6 @@ public class Link {
         }
         return nodes;
     }
-
-
-
 }
 
 

@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * 車の情報を持ったクラス
+ */ 
 public class Car : MonoBehaviour
 {
-
     public float dTime;
     public string[] linkIDs;
     List<string> linkChanger = new List<string>();
 
     List<Link> linklist = new List<Link>();
     Link nowLink;
-    public int myIndex;
+    public int myIndex; //リンク内で何番目の車かを表す変数
     int nowLinkIndex = 0;
     public Node[] nodes = new Node[2];
     public float endNodeDis;
@@ -51,11 +53,14 @@ public class Car : MonoBehaviour
         goalPointMaster = new GoalPointMaster();
 
         StartPoint = new DijkstraNode(StartX, StartY);
+        //一番近いゴール地点を探すメソッドを呼び出す
         GoalPoint = goalPointMaster.Calculate_SG_Distance(StartPoint);
 
+        //最短経路探索実行
         result = dijkstra.Execute(StartPoint, GoalPoint);
         RouteList = dijkstra.FindRoute();
 
+        //経路を取得
         for (int j = 0; j < RouteList.Count; j++)
         {
             linkChanger.Add(RouteList[j].linkID);
@@ -93,6 +98,9 @@ public class Car : MonoBehaviour
         }
     }
 
+    /*
+     * 車を前進させるメソッド
+     */
     void move()
     {
         runDistance += velo * dTime;
@@ -152,13 +160,17 @@ public class Car : MonoBehaviour
         }
     }
 
+    /*
+     * 前方の車との距離を計算するメソッド
+     * return 前方車との距離
+     */ 
     float getFrontCarDis()
     {
         myIndex = nowLink.carList.FindIndex(c => c.GetComponent<Car>().carName == carName);
         float dis = float.MaxValue;
         nowLinkName = nowLink.id;
 
-        if (myIndex > 0)
+        if (myIndex > 0) //前方に車があるとき
         {
             Car frontCar = nowLink.carList[myIndex - 1].GetComponent<Car>();
             if (frontCar.runDistance > this.runDistance)
@@ -170,14 +182,13 @@ public class Car : MonoBehaviour
                 dis = 0;
             }
         }
-        else //前方に車がないとき
+        else            //前方に車がないとき
         {
             if (nowLinkIndex + 1 < linklist.Count) //まだ先にリンクがある場合
             {
                 Link nextLink = linklist[nowLinkIndex + 1];
-
-                //次のリンクにいる車の数が0より大きいとき
-                if (nextLink.carList.Count > 0)
+                
+                if (nextLink.carList.Count > 0)    //次のリンクにいる車の数が0より大きいとき
                 {
                     Car frontCar = nextLink.carList[nextLink.carList.Count - 1].GetComponent<Car>();
                     dis = frontCar.runDistance + this.endNodeDis;

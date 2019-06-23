@@ -5,7 +5,7 @@ using System;
 using System.IO;
 
 /*
- * csvファイルを読み込み，リンクと
+ * リンクとノード情報を持ったcsvファイルを読み込み，リストを作成するクラス
  */
 public class LinkList : MonoBehaviour
 {
